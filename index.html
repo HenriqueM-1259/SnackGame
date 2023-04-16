@@ -81,15 +81,24 @@
             if(this.previewGeomery){
                 if(this.previewGeomery.Pixel){
                     this.previewGeomery.Update();
-                    console.log(this.nextGeometry)
                     if(this.VerifyColider()){
                         this.listGeometry.push(this.previewGeomery)
                         this.previewGeomery = null
                     }
                     
                 }
+
+                if(this.listGeometry.length != 0){
+                    if(this.VerifyColiderGeometryAndGeometry()){
+                        
+                            this.listGeometry.push(this.previewGeomery)
+                            this.previewGeomery = null
+                        }   
+                    }
+            
             }
 
+            
         }
 
         Draw(){
@@ -97,6 +106,12 @@
                 if(this.previewGeomery.Pixel){
                     this.previewGeomery.Draw();
                 }
+            }
+
+            if(this.listGeometry.length != 0){
+                this.listGeometry.forEach(geometryPause => {
+                    geometryPause.Draw();
+                })  
             }
         }
         GeraNextGeometry(){
@@ -112,14 +127,39 @@
            });
            return Colider;
         }
-
+        VerifyColiderGeometryAndGeometry(){
+            var Colider = false
+            this.listGeometry.forEach(GeometrySelect => {
+                GeometrySelect.Pixel.ListaObejto.forEach(ObejtosGeometryList => {
+                    if(this.previewGeomery != null){
+                        this.previewGeomery.Pixel.ListaObejto.forEach(ObejtosGeometry => {
+                        if(this.isColider(ObejtosGeometry,ObejtosGeometryList)){
+                            this.previewGeomery.stop = true
+                            Colider = true;
+                        }
+                        });
+                    }
+                    
+                })
+            })
+            return Colider;
+           
+        }
         isColider(GeometryOne,GeometryTwo){
             if(GeometryTwo == null || GeometryTwo == undefined){
                 if(GeometryOne.pos.y + GeometryOne.length.y >= 500){
                     return true
                 }
-            }else{
-                if(GeometryOne.pos.y + GeometryOne.length.y >= GeometryTwo.pos.y + GeometryTwo.length.y){
+            }
+            if (GeometryTwo != null || GeometryTwo != undefined){
+                
+                if(GeometryOne.pos.y > GeometryTwo.pos.y - GeometryTwo.length.y &&
+                    GeometryOne.pos.x > GeometryTwo.pos.x - GeometryTwo.length.x &&
+                    GeometryOne.pos.y < GeometryTwo.pos.y + GeometryTwo.length.y &&
+                    GeometryOne.pos.x < GeometryTwo.pos.x + GeometryTwo.length.x
+                   
+                ){
+                    
                     return true
                 }
             }
@@ -152,6 +192,10 @@
         Draw(){
             for (let i = 0; i < this.Pixel.ListaObejto.length; i++) {
                 var objetoSelected = this.Pixel.ListaObejto[i];
+                var colorRandom = ['red','blue','green']
+                const indiceAleatorio = Math.floor(Math.random() * colorRandom.length);
+                colorRandom = colorRandom[indiceAleatorio]
+                this.ctx.fillStyle = colorRandom
                 this.ctx.fillRect(objetoSelected.pos.x,objetoSelected.pos.y,objetoSelected.length.x,objetoSelected.length.y);
             }   
                 
@@ -187,6 +231,7 @@
                   break;
                 case "I":
                   this.Pixel = {
+
                     ListaObejto : [
                         {pos : { x:this.Position.x, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
 
@@ -204,7 +249,6 @@
         RandomGeometry(){
             const randomNumber = Math.round(Math.random() * 2);
             var ObjetoLista = ["Q","L","I"]
-            console.log(ObjetoLista[randomNumber])
             return ObjetoLista[randomNumber]
         }
     }
