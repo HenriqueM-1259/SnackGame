@@ -7,14 +7,19 @@
 <canvas id="CanvasId" width="300" height="500" style="border: 1px solid black;"></canvas>
 <script>
     var canvas = document.getElementById('CanvasId')
+    // Vai iniciar o sistema somente se carregar a tela
     window.addEventListener('load', function(){
         try {
+            // verifica o canvas se der algum erro cai no try
             if(!canvas) throw "Canvas nao foi carregado"
+            // cria uma estancia do jogo
             var Gs = new GameStarter(canvas);
+            //Inicia o loop
             function loop() {
             // Chama o loop novamente na próxima atualização de quadro
             requestAnimationFrame(loop);
             // Atualiza a lógica do jogo
+            //Cria a tela do jogo 
                 Gs.Starter();
             // Renderiza o jogo
             }
@@ -28,14 +33,16 @@
         
 
     })
-
+    //segunda camada : All Services
     class GameStarter{
         constructor(canvas){
             this.canvas = canvas
             this.ctx = this.canvas.getContext('2d')
             this.Objeto = null
+            this.ListObjeto = []
         }
 
+        //Carrega o objeto do jogo antes de chamar o draw and update para nao dar erro
         Starter() {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             if(this.Objeto == undefined || this.Objeto == null){
@@ -47,20 +54,42 @@
         }
         Update(){  
             this.Objeto.Update();
-            if(this.Objeto.Position.y == 450){
-                this.Objeto = null
+            for (let i = 0; i < this.Objeto.Pixel.ListaObejto.length; i++) {
+                if(this.Objeto.Pixel.ListaObejto[i].pos.y == 500){
+                     this.Objeto.Stop = true
+                    this.ListObjeto.push(this.Objeto)
+                    this.Objeto = null
+
+                }
+            }
+            
+            if(this.ListObjeto.length > 0){
+                this.ListObjeto.forEach(gameObj => {
+                    //Criar a colisao aqui temos que defir o tamanho 
+                    console.log(gameObj)
+                });
             }
         }
 
         Draw(){
             this.Objeto.Draw()
+            this.ListObjeto.forEach(gameObj => {
+                    gameObj.Draw()
+                });
         }
     }
 
+    //Objeto que tem toda a logica 
     class GameObj{
         constructor(ctx){
             this.ctx = ctx
             this.SelectedProtoObj = null
+            this.Stop = false;
+            this.length = {
+                x:0,
+                y:0,            
+            }
+            this.Pixel = null
             this.Position = {
                 x:0,
                 y:0
@@ -73,36 +102,107 @@
             if(this.SelectedProtoObj == null){
                 const randomNumber = Math.round(Math.random() * 2);
                 var ObjetoLista = ["Q","L","I"]
-                
-                this.SelectedProtoObj = ObjetoLista[randomNumber];
+                this.SelectedProtoObj = ObjetoLista[randomNumber]
+
+            }
+
+            switch(this.SelectedProtoObj){
+                case "Q":
+                  this.length.x = 12,25
+                  this.length.y = 12.25
+                  this.Pixel = {
+                    whidth:25,
+                    height:25,
+                    ListaObejto : [
+                        //cria os objetos, para renderizar na tela
+                        {pos : { x:this.Position.x, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
+
+                        {pos : { x:this.Position.x + this.length.x, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
+                        
+                        {pos : { x:this.Position.x, y:this.Position.y + this.length.y},length:{x:this.length.x, y:this.length.y}},
+                        
+                        {pos : { x:this.Position.x + this.length.x, y:this.Position.y+this.length.y},length:{x:this.length.x, y:this.length.y}},
+                    ]
+                  }
+                break;
+                case "L":
+                  this.length.x = 12,25
+                  this.length.y = 12.25
+                  this.Pixel = {
+                    whidth:25,
+                    height:25,
+                    ListaObejto : [
+                        //cria os objetos, para renderizar na tela
+                        {pos : { x:this.Position.x, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
+
+                        {pos : { x:this.Position.x + this.length.x, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
+                        
+                        {pos : { x:this.Position.x + this.length.x * 2, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
+                        
+                        {pos : { x:this.Position.x + this.length.x * 2, y:this.Position.y + this.length.y},length:{x:this.length.x, y:this.length.y}},
+                    ]
+
+                  }
+                case "I":
+                  this.length.x = 12,25
+                  this.length.y = 12.25
+                  this.Pixel = {
+                    whidth:25,
+                    height:25,
+                    ListaObejto : [
+                        //cria os objetos, para renderizar na tela
+                        {pos : { x:this.Position.x, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
+
+                        {pos : { x:this.Position.x + this.length.x, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
+                        
+                        {pos : { x:this.Position.x + this.length.x  * 2, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
+                        
+                        {pos : { x:this.Position.x + this.length.x * 3, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
+                    ]
+
+                  }
+                break;
             }
         }
         Update(){
-
-            this.Position.y++
+            if(!this.Stop){
+                for (let i = 0; i < this.Pixel.ListaObejto.length; i++) {
+                        this.Pixel.ListaObejto[i].pos.y++
+                       
+                } 
+            } 
         }
 
         Draw(){
-            
+           
             switch(this.SelectedProtoObj){
                 case "Q":
                     this.ctx.fillStyle = "red";
-                    this.ctx.fillRect(this.Position.x, this.Position.y, 50, 50);
+                    for (let i = 0; i < this.Pixel.ListaObejto.length; i++) {
+                        var objetoSelected = this.Pixel.ListaObejto[i];
+                        this.ctx.fillRect(objetoSelected.pos.x,objetoSelected.pos.y,objetoSelected.length.x,objetoSelected.length.y);
+                    }   
+                
                     this.Objeto = ("Quadrado")
                 break;
                 case "L":
                     this.ctx.fillStyle = "red";
-                    this.ctx.fillRect(this.Position.x, this.Position.y, 100, 50);
-                    this.ctx.fillRect(this.Position.x, this.Position.y +50, 50, 50);
+                    for (let i = 0; i < this.Pixel.ListaObejto.length; i++) {
+                        var objetoSelected = this.Pixel.ListaObejto[i];
+                        this.ctx.fillRect(objetoSelected.pos.x,objetoSelected.pos.y,objetoSelected.length.x,objetoSelected.length.y);
+                    }   
                     this.Objeto = ("Objeto L")
                     break;
                 case "I":
                     this.ctx.fillStyle = "red";
-                    this.ctx.fillRect(this.Position.x, this.Position.y, 50, 100);
+                    for (let i = 0; i < this.Pixel.ListaObejto.length; i++) {
+                        var objetoSelected = this.Pixel.ListaObejto[i];
+                        this.ctx.fillRect(objetoSelected.pos.x,objetoSelected.pos.y,objetoSelected.length.x,objetoSelected.length.y);
+                    }   
                     this.Objeto = ("Objeto I")
                     break;
             }
-
+            
             console.log(`${this.Objeto} : ${this.Position.y}`)
         }
     }
