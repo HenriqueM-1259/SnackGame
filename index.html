@@ -67,6 +67,17 @@
             this.backGeometry = null
             this.previewGeomery = null
             this.listGeometry = []
+            addEventListener("keydown",(event) => {
+                if(event.key == "d") {
+                    this.move(12.25,0)
+                }
+                if(event.key == "a") {
+                    this.move(-12.25,0)
+                }
+                if(event.key == "s") {
+                    this.move(0,10)
+                }
+            })
         }    
 
         Update(){
@@ -78,6 +89,7 @@
                 this.previewGeomery = this.nextGeometry;
                 this.nextGeometry = null
             }
+            
             if(this.previewGeomery){
                 if(this.previewGeomery.Pixel){
                     this.previewGeomery.Update();
@@ -94,11 +106,8 @@
                             this.listGeometry.push(this.previewGeomery)
                             this.previewGeomery = null
                         }   
-                    }
-            
+                }
             }
-
-            
         }
 
         Draw(){
@@ -166,6 +175,13 @@
             
             return false;
         }
+
+        move(x,y){
+            this.previewGeomery.Pixel.ListaObejto.forEach(geometryObje => {
+                geometryObje.pos.x += x;
+                geometryObje.pos.y += y;
+            })
+        }
     }
 
     class ObjetoGeometria{
@@ -192,10 +208,19 @@
         Draw(){
             for (let i = 0; i < this.Pixel.ListaObejto.length; i++) {
                 var objetoSelected = this.Pixel.ListaObejto[i];
-                var colorRandom = ['red','blue','green']
-                const indiceAleatorio = Math.floor(Math.random() * colorRandom.length);
-                colorRandom = colorRandom[indiceAleatorio]
-                this.ctx.fillStyle = colorRandom
+                switch (this.Pixel.Type) {
+                    case "Q":
+                        this.ctx.fillStyle = "red"
+                        break;
+                    case "L":
+                        this.ctx.fillStyle = "green"
+                        break;
+                    case "I":
+                        this.ctx.fillStyle = "blue"
+                        break;
+                    default:
+                        break;
+                }
                 this.ctx.fillRect(objetoSelected.pos.x,objetoSelected.pos.y,objetoSelected.length.x,objetoSelected.length.y);
             }   
                 
@@ -203,7 +228,9 @@
         GeneratorGeometry(){
             switch(this.RandomGeometry()){
                 case "Q":
+                
                   this.Pixel = {
+                    Type: "Q",
                     ListaObejto : [
                         {pos : { x:this.Position.x, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
 
@@ -217,6 +244,7 @@
                 break;
                 case "L":
                   this.Pixel = {
+                    Type: "L",
                     ListaObejto : [
                         {pos : { x:this.Position.x, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
 
@@ -231,7 +259,7 @@
                   break;
                 case "I":
                   this.Pixel = {
-
+                    Type: "I",
                     ListaObejto : [
                         {pos : { x:this.Position.x, y:this.Position.y},length:{x:this.length.x, y:this.length.y}},
 
