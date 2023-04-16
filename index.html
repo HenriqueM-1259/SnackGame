@@ -1,0 +1,109 @@
+<style>
+    *{
+        padding: 0%;
+        margin: 0%;
+    }
+</style>
+<canvas id="CanvasId" width="300" height="500" style="border: 1px solid black;"></canvas>
+<script>
+    var canvas = document.getElementById('CanvasId')
+    window.addEventListener('load', function(){
+        try {
+            if(!canvas) throw "Canvas nao foi carregado"
+            var Gs = new GameStarter(canvas);
+            function loop() {
+            // Chama o loop novamente na próxima atualização de quadro
+            requestAnimationFrame(loop);
+            // Atualiza a lógica do jogo
+                Gs.Starter();
+            // Renderiza o jogo
+            }
+
+            // Inicia o loop
+            requestAnimationFrame(loop);
+            
+        } catch (error) {
+            console.log(error)
+        }
+        
+
+    })
+
+    class GameStarter{
+        constructor(canvas){
+            this.canvas = canvas
+            this.ctx = this.canvas.getContext('2d')
+            this.Objeto = null
+        }
+
+        Starter() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            if(this.Objeto == undefined || this.Objeto == null){
+                this.Objeto = new GameObj(this.ctx)
+                this.Objeto.createObj()
+            }
+            this.Draw(); 
+            this.Update();               
+        }
+        Update(){  
+            this.Objeto.Update();
+            if(this.Objeto.Position.y == 450){
+                this.Objeto = null
+            }
+        }
+
+        Draw(){
+            this.Objeto.Draw()
+        }
+    }
+
+    class GameObj{
+        constructor(ctx){
+            this.ctx = ctx
+            this.SelectedProtoObj = null
+            this.Position = {
+                x:0,
+                y:0
+            }
+            this.Objeto = null
+        }
+
+        createObj(){
+            
+            if(this.SelectedProtoObj == null){
+                const randomNumber = Math.round(Math.random() * 2);
+                var ObjetoLista = ["Q","L","I"]
+                
+                this.SelectedProtoObj = ObjetoLista[randomNumber];
+            }
+        }
+        Update(){
+
+            this.Position.y++
+        }
+
+        Draw(){
+            
+            switch(this.SelectedProtoObj){
+                case "Q":
+                    this.ctx.fillStyle = "red";
+                    this.ctx.fillRect(this.Position.x, this.Position.y, 50, 50);
+                    this.Objeto = ("Quadrado")
+                break;
+                case "L":
+                    this.ctx.fillStyle = "red";
+                    this.ctx.fillRect(this.Position.x, this.Position.y, 100, 50);
+                    this.ctx.fillRect(this.Position.x, this.Position.y +50, 50, 50);
+                    this.Objeto = ("Objeto L")
+                    break;
+                case "I":
+                    this.ctx.fillStyle = "red";
+                    this.ctx.fillRect(this.Position.x, this.Position.y, 50, 100);
+                    this.Objeto = ("Objeto I")
+                    break;
+            }
+
+            console.log(`${this.Objeto} : ${this.Position.y}`)
+        }
+    }
+</script>
